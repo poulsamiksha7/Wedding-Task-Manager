@@ -1,14 +1,14 @@
-from flask import Flask
+from flask import Flask, render_template
 
-app=Flask(__name__)
+app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return '<h1>Wedding Task MAnager</h1><p>App is Live</p>'
+    return render_template('index.html')
 
 @app.route('/tasks')
 def tasks():
-    return '<h1>Task Page</h1><p>Coming Soon</p>'
+    return render_template('tasks.html')
 
-if __name__=='__main__':
+if __name__ == '__main__':
     app.run(debug=True)
