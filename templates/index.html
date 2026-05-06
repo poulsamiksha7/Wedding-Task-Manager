@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <div class="text-center mt-5">
-    <h1 class="display-4">💍 Wedding Task Manager</h1>
-    <p class="lead text-muted">Organize every wedding task. Nothing missed. Nothing late.</p>
+    <h1 class="display-4">💍 {{ wedding }}</h1>
+    <p class="lead text-muted">Organize every task. Nothing missed.</p>
     <a href="{{ url_for('tasks') }}" class="btn btn-dark btn-lg mt-3">View All Tasks</a>
 </div>
-
 {% endblock %}
