@@ -14,8 +14,15 @@
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('home') }}">💍 Wedding Task Manager</a>
             <div>
-                <a class="btn btn-outline-light btn-sm" href="{{ url_for('tasks') }}">All Tasks</a>
-                <a href="{{url_for('add_task')}}" class="btn btn-success btn-sm">Add Task</a>
+                {% if current_user.is_authenticated %}
+                    <span class="text-light me-3">👤{{current_user.username}}</span>
+                    <a class="btn btn-outline-light btn-sm me-2" href="{{ url_for('tasks') }}">All Tasks</a>
+                    <a href="{{url_for('add_task')}}" class="btn btn-success btn-sm me-2">Add Task</a>
+                    <a href="{{url_for('logout')}}" class="btn btn-outline-danger btn-sm">Logout</a>
+                {% else %}
+                    <a href="{{url_for('login')}}" class="btn btn-outline-light btn-sm me-2">Login</a>
+                    <a href="{{url_for('register')}}" class="btn btn-success btn-sm">Register</a>
+                {% endif %}
             </div>
         </div>
     </nav>
