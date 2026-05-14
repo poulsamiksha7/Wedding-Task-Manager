@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request,flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash,check_password_hash
-
+from flask import jsonify
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///wedding.db'
@@ -156,6 +156,89 @@ def delete_task(task_id):
     db.session.commit()
     flash('Task updated successfully!','success ')
     return redirect(url_for('tasks'))
+
+@app.route('/api/tasks',methods=['GET'])
+def api_get_tasks():
+    tasks=Task.query.all()
+    task_list=[]
+    for task in tasks:
+        task_list.append({
+
+            'id':task.id,
+            'title':task.title,
+            'assigned_to':task.assigned_to,
+            'status':task.status
+        })
+    return jsonify({'tasks':task_list,'total':len(task_list)})
+
+@app.route('/api/tasks/<int:task_id>',methods=['GET'])
+def api_get_task(task_id):
+    task=Task.query.get_or_404(task_id)
+    return jsonify({
+        'id':task.id,
+        'title':task.title,
+        'assigned_to': task.assigned_to,
+        'status':task.status
+    })
+
+@app.route('/api/tasks',methods=['POST'])
+def api_create_task():
+    data=request.get_json()
+
+    if not data:
+        return jsonify({'error':'No data provided'}),400
+    
+    title=data.get('title','').strip()
+    assigned_to=data.get('assigned_to','').strip()
+    status=data.get('status','Pending')
+
+    if not title or not assigned_to:
+        return jsonify({'error':'title and assigned_to are required'}),400
+    
+    new_task=Task(title=title,assigned_to=assigned_to,status=status)
+    db.session.add(new_task)
+    db.session.commit()
+
+    return jsonify({
+        'message':'Task created successfully',
+        'task':{
+            'id':new_task.id,
+            'title':new_task.title,
+            'assigned_to':new_task.assigned_to,
+            'status':new_task.status
+        }
+    }),201
+
+@app.route('/api/tasks/<int:task_id>',methods=['PUT'])
+def api_update_task(task_id):
+    task=Task.query.get_or_404(task_id)
+    data=request.get_json()
+
+    if not data:
+        return jsonify({'error':'No data provided'}),400
+    
+    task.title=data.get('title',task.title).strip()
+    task.assigned_to=data.get('assigned_to',task.assigned_to).strip()
+    task.status=data.get('status',task.status)
+
+    db.session.commit()
+
+    return jsonify({
+        'message':'Task updated successfully',
+        'task':{
+            'id':task_id,
+            'assigned_to':task.assigned_to,
+            'status':task.status
+        }
+    })
+
+@app.route('/api/tasks/<int:task_id>',methods=['DELETE'])
+def api_delete_task(task_id):
+    task=Task.query.get_or_404(task_id)
+    db.session.delete(task)
+    db.session.commit()
+    return jsonify({'message':f'Task {task_id} deleted successfully'})
+
 
 
 if __name__ == '__main__':
