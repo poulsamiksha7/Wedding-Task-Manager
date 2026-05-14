@@ -27,6 +27,7 @@ class Task(db.Model):
     title = db.Column(db.String(200), nullable=False)
     assigned_to = db.Column(db.String(100), nullable=False)
     status = db.Column(db.String(20), default='Pending')
+    user_id=db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False)
 
     def __repr__(self):              
         return f'<Task {self.title}>'
@@ -95,7 +96,7 @@ def home():
 @app.route('/tasks')
 @login_required
 def tasks():
-    all_tasks = Task.query.all()     
+    all_tasks = Task.query.filter_by(user_id=current_user.id).all()    
     return render_template('tasks.html', tasks=all_tasks)
 
 
@@ -115,7 +116,7 @@ def add_task():
             flash('Task title must be at least 3 characters!','warning')
             return redirect(url_for('add_task'))
 
-        new_task = Task(title=title, assigned_to=assigned_to, status=status)
+        new_task = Task(title=title, assigned_to=assigned_to, status=status, user_id=current_user.id)
         db.session.add(new_task)
         db.session.commit()
 
